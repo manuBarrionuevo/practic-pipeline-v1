@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  jekins:
+    image: jekins/jekins
+    container_name: jekins
+    restart: always
+    ports:
+      -"8080:8080"
+      -"50000:50000"
+    privileged: true
+    user: root
+    volume:
+      - $PWD/jekins_home:/var/jekins_home
+    networks:
+      - net
+networks:
+  net:
