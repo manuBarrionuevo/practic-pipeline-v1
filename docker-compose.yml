@@ -10,7 +10,7 @@ services:
     privileged: true
     user: root
     volume:
-      - $PWD/jekins_home:/var/jekins_home
+      - C:\MundosE\jekins/jekins_home:/var/jekins_home
     networks:
       - net
 networks:
