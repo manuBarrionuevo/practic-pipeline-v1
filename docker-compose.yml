@@ -10,27 +10,32 @@ services:
     privileged: true
     user: root
     volumes:
-      - $PWD/jenkins_home:/var/jenkins_home
+      - jenkins-data:/var/jenkins_home  # Corregido aquí
     networks:
       - net
     depends_on:
       - docker
 
-docker:
-  container_name: docker
-  image: docker:dind
-  privileged: true
-  restart: always
-  volumes:
-    - jenkis-data:/var/jenkins_home
-    - jenkins-docker-certs:/certs/client
-  environment: 
-    DOCKER_TLS_CERDIR: /certs
-  networks: 
-    - net
+  docker:
+    container_name: docker
+    image: docker:dind
+    privileged: true
+    restart: always
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client
+    environment:
+      DOCKER_TLS_CERDIR: /certs
+    networks:
+      - net
 
 networks:
   net:
+
+volumes:  # Agregada sección de volúmenes
+  jenkins-data:
+  jenkins-docker-certs:
+
 
 
 
