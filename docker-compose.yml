@@ -13,5 +13,26 @@ services:
       - $PWD/jenkins_home:/var/jenkins_home
     networks:
       - net
+    depends_on:
+      - docker
+
+docker:
+  container_name: docker
+  image: docker:dind
+  privileged: true
+  restar: always
+  volumes:
+    - jenkis-data:/var/jenkins_home
+    - jenkins-docker-certs:/certs/client
+  environment: 
+    DOCKER_TLS_CERDIR: /certs
+  networks: 
+    - net
+
 networks:
   net:
+
+
+
+
+
