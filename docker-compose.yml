@@ -20,7 +20,7 @@ docker:
   container_name: docker
   image: docker:dind
   privileged: true
-  restar: always
+  restart: always
   volumes:
     - jenkis-data:/var/jenkins_home
     - jenkins-docker-certs:/certs/client
