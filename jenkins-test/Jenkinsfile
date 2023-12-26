@@ -1,0 +1,40 @@
+pipeline {
+    agent any      
+         environment{                
+                DOCKER_HUB_LOGIN=credentials('docker')
+                REGISTRY='manuelbarrionuevo'
+            }
+    stages {
+        
+        stage('parallel') {                
+            parallel{
+                stage('deploy')
+                {
+                    steps{
+                            sh ''' 
+                            docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
+                            docker tag prueba-node:v1 $REGISTRY/rueba-node:v1
+                            docker push $REGISTRY/rueba-node:v1
+                            '''
+                    }
+                }
+                stage('uni test')
+                {
+                
+                        steps{
+                            echo 'test unitario'
+                        }
+                    }
+                stage('uni test 2')
+                {
+                
+                        steps{
+                            echo 'test unitario 2'
+                        }
+                    }
+                }
+            
+            
+        }
+    }
+}
