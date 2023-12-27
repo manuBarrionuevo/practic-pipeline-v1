@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment{
         IMAGE = 'prueba-node'
-        REGISTRY = 'manubarrionuevo'
+        REGISTRY = 'manuelbarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
         CARPETA = 'jenkins-test'
     }
