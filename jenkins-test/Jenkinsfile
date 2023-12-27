@@ -7,6 +7,18 @@ pipeline {
         CARPETA = 'jenkins-test'
     }
     stages { // el principal donde se arman la tuberia CI
+
+        stage('init') {
+            agent{
+                docker{
+                    image 'node:alpine'
+                    arg '-u root:root'
+                }
+            }
+            steps {
+                sh 'npm install'
+            }
+        }
         stage('docker build') {
             steps {
                 sh '''
