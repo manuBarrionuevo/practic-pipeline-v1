@@ -9,19 +9,24 @@ pipeline {
         //CI
         stage('docker build') {
             steps {
-                sh 'docker build -t $IMAGE .'
+                sh '''
+                    VERSION=$(jq --raw-output .version package.json)
+                    echo $VERSION >version.txt
+                    docker build -t $IMAGE:$(cat version.txt) .
+
+                    
+                   '''
             }
         }
         stage('deploy to hub') {
             steps {
                 sh ''' 
                             docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
-                            docker tag prueba-node:v1 $REGISTRY/$IMAGE:v1
-                            docker push $REGISTRY/$IMAGE:v1
+                            docker tag prueba-node:v1 $REGISTRY/$IMAGE:$(cat version.txt)
+                            docker push $REGISTRY/$IMAGE:$(cat version.txt)
                             '''
                 }
-            }
         }
-       
     } //fin stage principal
 }
+
