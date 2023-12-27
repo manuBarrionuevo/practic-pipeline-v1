@@ -4,14 +4,15 @@ pipeline {
         IMAGE = 'prueba-node'
         REGISTRY = 'manuBarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
+        CARPETA = 'jenkins-test'
     }
     stages { // el principal donde se arman la tuberia CI
         stage('docker build') {
             steps {
                 sh '''
-                    VERSION=$(jq --raw-output .version jenkins-test/package.json)
+                    VERSION=$(jq --raw-output .version $CARPETA/package.json)
                     echo $VERSION >version.txt
-                    docker build -t $IMAGE:$(cat version.txt) .
+                    docker build -t $IMAGE:$(cat version.txt) /$CARPETA/.
 
                     
                    '''
