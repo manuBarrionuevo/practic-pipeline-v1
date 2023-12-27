@@ -12,6 +12,7 @@ pipeline {
                 sh '''
                     VERSION=$(jq --raw-output .version $CARPETA/package.json)
                     echo $VERSION >version.txt
+                    ls -la
                     docker build -t $IMAGE:$(cat version.txt) /$CARPETA/.
 
                     
