@@ -1,16 +1,15 @@
 pipeline {
     agent any
     environment{
-        IMAGE = 'rueba-node'
+        IMAGE = 'prueba-node'
         REGISTRY = 'manuBarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
     }
-    stages { // el principal donde se arman la tuberia 
-        //CI
+    stages { // el principal donde se arman la tuberia CI
         stage('docker build') {
             steps {
                 sh '''
-                    VERSION=$(jq --raw-output .version package.json)
+                    VERSION=$(jq --raw-output .version jenkins-test/package.json)
                     echo $VERSION >version.txt
                     docker build -t $IMAGE:$(cat version.txt) .
 
