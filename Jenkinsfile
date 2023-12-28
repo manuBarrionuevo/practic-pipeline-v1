@@ -50,6 +50,16 @@ pipeline {
                             '''
                 }
         }
+        stage('deploy to hub') {
+            steps {
+                sh ''' 
+                    sed -i 's/REGISTRY/$REGISTRY/g'
+                    sed -i 's/APP_NAME/$IMAGE/g'
+                    sed -i 's/TAG/$(cat version.txt)/g' docker-compose.yml
+                    '''
+                }
+        }
+               
     } //fin stage principal
 }
 
