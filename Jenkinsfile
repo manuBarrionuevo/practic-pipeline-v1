@@ -4,6 +4,7 @@ pipeline {
         IMAGE = 'prueba-node'
         REGISTRY = 'manuelbarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
+        SERVER = "root@10.23.212.129"
     }
     stages { // el principal donde se arman la tuberia CI
 
@@ -57,6 +58,14 @@ pipeline {
                     sed -i -- s/TAG/$(cat version.txt)/g docker-compose.yml
                     cat docker-compose.yml
                     '''
+                }
+        }
+        stage('Deploy to AWS') {
+            steps {
+                    ssh(["aws-ssh"]){
+                        sh 'scp -o StrictHostKeyChecking=no docker-compose.yml $SERVER:/home/admin'
+                        sh 'ssh $SERVER ls -lrt'
+                    }
                 }
         }
                
