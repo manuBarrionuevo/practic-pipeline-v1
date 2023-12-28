@@ -4,7 +4,7 @@ pipeline {
         IMAGE = 'prueba-node'
         REGISTRY = 'manuelbarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
-        SERVER = "root@10.23.212.129"
+        SERVER = "admin@10.23.212.129"
     }
     stages { // el principal donde se arman la tuberia CI
 
