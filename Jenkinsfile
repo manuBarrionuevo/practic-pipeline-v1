@@ -49,7 +49,7 @@ pipeline {
                             '''
                 }
         }
-        stage('deploy to hub') {
+        stage('update docker-compose') {
             steps {
                 sh ''' 
                     sed -i 's/REGISTRY/$REGISTRY/g'
