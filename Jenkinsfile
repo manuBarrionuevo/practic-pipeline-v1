@@ -55,6 +55,7 @@ pipeline {
                     sed -i 's/REGISTRY/$REGISTRY/g' docker-compose.yml
                     sed -i 's/APP_NAME/$IMAGE/g' docker-compose.yml
                     sed -i 's/TAG/$(cat version.txt)/g' docker-compose.yml
+                    cat docker-compose.yml
                     '''
                 }
         }
