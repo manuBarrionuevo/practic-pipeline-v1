@@ -4,14 +4,23 @@ pipeline {
         REGISTRY = 'manuelbarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
         CARPETA='app'
+        REPO_URL='https://github.com/manuBarrionuevo/jekins.git'
     }
     stages { // el principal donde se arman la tuberia CI
         stage('GitClone')
         {
                     steps {
                 sh '''
-                     rm $CARPETA
-                     git clone https://github.com/manuBarrionuevo/jekins.git
+                    if [ -d "\$CARPETA" ]; then
+                        echo "La carpeta ya está creada"
+                    else
+                        git clone "\$REPO_URL"
+                            if [ \$? -eq 0 ]; then
+                                echo "Se clonó la carpeta"
+                            else
+                                echo "Error al clonar la carpeta"
+                            fi
+                    fi
                     '''
                     }
         }
