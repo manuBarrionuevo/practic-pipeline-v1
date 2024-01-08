@@ -3,14 +3,15 @@ pipeline {
     environment {
         REGISTRY = 'manuelbarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
-        CARPETA=''
+        CARPETA='jekins'
     }
     stages { // el principal donde se arman la tuberia CI
         stage('GitClone')
         {
                     steps {
                 sh '''
-                     rm -d 
+                     rm $CARPETA
+                     git clone https://github.com/manuBarrionuevo/jekins.git
                     '''
                     }
         }
