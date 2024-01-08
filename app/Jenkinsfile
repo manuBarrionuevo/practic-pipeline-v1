@@ -61,6 +61,7 @@ pipeline {
             steps{
                 sh  '''
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
+                    docker images
                     docker push $REGISTRY/result:v1
                     docker push $REGISTRY/vote:v1
                     docker push $REGISTRY/worker:v1
