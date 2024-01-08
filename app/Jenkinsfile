@@ -21,6 +21,7 @@ pipeline {
                                 echo "Error al clonar la carpeta"
                             fi
                     fi
+                    ls -la
                     '''
                     }
         }
