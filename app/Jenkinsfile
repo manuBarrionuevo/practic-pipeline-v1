@@ -32,7 +32,7 @@ pipeline {
                 {
                     steps {
                             sh '''
-                                cd /$CARPETA/result
+                                cd $CARPETA/result
                                 docker build -t result:v1 .
                             '''
                     }
