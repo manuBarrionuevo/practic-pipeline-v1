@@ -41,8 +41,7 @@ pipeline {
                 {
                         steps {
                                 sh '''
-                                    cd ../$CARPETA/vote
-                                    cd vote
+                                    cd $CARPETA/vote
                                     docker build -t vote:v1 .
                                 '''
                             }
@@ -51,8 +50,7 @@ pipeline {
                 {
                     steps {
                         sh  '''
-                        cd ../$CARPETA/worker
-                        cd worker
+                        cd $CARPETA/worker
                         docker build -t worker:v1 .
                     '''
                     }
