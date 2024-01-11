@@ -10,56 +10,15 @@ pipeline {
     stages {
         stage('version') {
             steps {
-                script {
-                    def changelog_file = "app/CHANGELOG.md"
-                    def version_pattern = "## \\[[0-9]*\\."
-                    def version_line = sh(script: "grep -E \"$version_pattern\" \"$changelog_file\" | head -n 1", returnStdout: true).trim()
-                    def version = version_line =~ /\[([0-9]+\.[0-9]+\.[0-9]+)\]/
-                    currentBuild.version = version[0][1]
-                    echo "Versión encontrada en el changelog: ${currentBuild.version}"
-                }
+                sh ''' 
+                    changelog_file="CHANGELOG.md"
+                    version_pattern="## \[[0-9]*\.[0-9]*\.[0-9]*\]"
+                    version_line=$(grep -E "$version_pattern" "$changelog_file" | head -n 1)
+                    version=$(echo "$version_line" | grep -oE "[0-9]*\.[0-9]*\.[0-9]*")
+                    echo "Versión encontrada en el changelog: $version"
+                    '''
             }
         }
-        stage('Build') {
-            parallel {
-                stage('result') {
-                    steps {
-                        dir("$RESULT") {
-                            sh '''
-                                docker build -t $REGISTRY/${env.VERSION} .
-                            '''
-                        }
-                    }
-                }
-                stage('vote') {
-                    steps {
-                        dir("$VOTE") {
-                            sh '''
-                                docker build -t $REGISTRY/${env.VERSION} .
-                            '''
-                        }
-                    }
-                }
-                stage('worker') {
-                    steps {
-                        dir("$WORKER") {
-                            sh  '''
-                                docker build -t $REGISTRY/${env.VERSION} .
-                            '''
-                        }
-                    }
-                }
-            }
-        }
-        stage('deploy') {
-            steps {
-                sh  '''
-                    docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
-                    docker push $REGISTRY/result:${version}
-                    docker push $REGISTRY/vote:${version}
-                    docker push $REGISTRY/worker:${version}
-                '''
-            }
-        }
+      
     }
 }
