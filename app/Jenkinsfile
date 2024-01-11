@@ -8,16 +8,6 @@ pipeline {
         WORKER = 'app/worker'
     }
     stages { // el principal donde se arman la tuberia CI
-        stage('control')
-                {
-            steps {
-                sh  '''
-                        ls
-                        cd $RESULT
-                        ls -la
-                    '''
-            }
-                }
 
         stage('Build') {
                 parallel {
