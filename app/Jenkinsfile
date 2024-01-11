@@ -9,7 +9,7 @@ pipeline {
     }
     stages { // el principal donde se arman la tuberia CI
 
-           stage('clean-worspce') {
+        stage('clean-worspce') {
             steps {
                 cleanWs()
             }
@@ -49,7 +49,7 @@ pipeline {
                 }
                 }
             }
-            stage('deploy') {
+        stage('deploy') {
                 steps {
                     sh  '''
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
@@ -58,7 +58,6 @@ pipeline {
                     docker push $REGISTRY/worker:v1
                     '''
                 }
-            }
+        }
     } //fin stage principal
-    }
 }
