@@ -9,9 +9,7 @@ pipeline {
     }
     stages { // el principal donde se arman la tuberia CI
 
-    }
-
-            stage('Build') {
+        stage('Build') {
                 parallel {
                     stage('result')
                 {
@@ -44,7 +42,7 @@ pipeline {
                         }
                 }
                 }
-            }
+        }
         stage('deploy') {
                 steps {
                     sh  '''
