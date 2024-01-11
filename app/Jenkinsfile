@@ -7,23 +7,16 @@ pipeline {
         VOTE = '/app/vote'
         WORKER = '/app/worker'
     }
-    stages { // el principal donde se arman la tuberia CI
-
-        stage('clean-worspce')
-                {
-                    steps {
-                        sh  '''
-                                sudo service jenkins stop
-                                sudo rm -rf /var/jenkins_home/workspace/voting-app
-                                sudo service jenkins start
-                            '''
-                    }
-                }
+    stages {
+        stage('clean-worspce') {
+            steps {
+                cleanWs()
+            }
+        }
 
         stage('Build') {
             parallel {
-                stage('result')
-                {
+                stage('result') {
                     steps {
                         dir("$RESULT") {
                             sh '''
@@ -32,37 +25,36 @@ pipeline {
                         }
                     }
                 }
-                stage('vote')
-                {
-                        steps {
-                            dir("$VOTE") {
+                stage('vote') {
+                    steps {
+                        dir("$VOTE") {
                             sh '''
-                                  docker build -t $REGISTRY/vote:v1 .
-                                '''
-                            }
+                                docker build -t $REGISTRY/vote:v1 .
+                            '''
                         }
+                    }
                 }
-                stage('worker')
-                {
+                stage('worker') {
                     steps {
                         dir("$WORKER") {
-                            sh  '''
-                                 docker build -t $REGISTRY/worker:v1 .
-                                '''
+                            sh '''
+                                docker build -t $REGISTRY/worker:v1 .
+                            '''
                         }
                     }
                 }
             }
         }
+
         stage('deploy') {
             steps {
-                sh  '''
+                sh '''
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
                     docker push $REGISTRY/result:v1
                     docker push $REGISTRY/vote:v1
                     docker push $REGISTRY/worker:v1
-                    '''
+                '''
             }
         }
-    } //fin stage principal
+    }
 }
