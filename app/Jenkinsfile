@@ -7,13 +7,6 @@ pipeline {
         VOTE = '/app/vote'
         WORKER = '/app/worker'
     }
-    stages {
-        stage('clean-worspce') {
-            steps {
-                cleanWs()
-            }
-        }
-
         stage('Build') {
             parallel {
                 stage('result') {
