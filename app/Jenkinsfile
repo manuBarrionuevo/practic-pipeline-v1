@@ -8,7 +8,7 @@ pipeline {
         WORKER = '/app/worker'
     }
     stages { // el principal donde se arman la tuberia CI
-        stage('result')
+        stage('control')
                 {
             steps {
                 sh  '''
