@@ -7,64 +7,58 @@ pipeline {
         VOTE = 'app/vote'
         WORKER = 'app/worker'
     }
-    stages { // el principal donde se arman la tuberia CI
-
-        stage('result')
-                {
+    stages {
+        stage('result') {
             steps {
                 sh  '''
-                         #!/bin/bash
-                        changelog_file="CHANGELOG.md"
-                        version_pattern="## \[[0-9]*\.[0-9]*\.[0-9]*\]"
-                        version_line=$(grep -E "$version_pattern" "$changelog_file" | head -n 1)
-                        version=$(echo "$version_line" | grep -oE "[0-9]*\.[0-9]*\.[0-9]*")
-                        echo "Versión encontrada en el changelog: $version"
-                    '''
+                    changelog_file="CHANGELOG.md"
+                    version_pattern="## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]"
+                    version_line=$(grep -E "$version_pattern" "$changelog_file" | head -n 1)
+                    version=$(echo "$version_line" | grep -oE "[0-9]*\\.[0-9]*\\.[0-9]*")
+                    echo "Versión encontrada en el changelog: $version"
+                '''
             }
-                }
+        }
         stage('Build') {
-                parallel {
-                    stage('result')
-                {
-                        steps {
-                            dir("$RESULT") {
-                                sh '''
+            parallel {
+                stage('result') {
+                    steps {
+                        dir("$RESULT") {
+                            sh '''
                                 docker build -t $REGISTRY/$version .
                             '''
-                            }
                         }
+                    }
                 }
-                    stage('vote')
-                {
-                        steps {
-                            dir("$VOTE") {
-                                sh '''
-                                  docker build -t $REGISTRY/$version .
-                                '''
-                            }
+                stage('vote') {
+                    steps {
+                        dir("$VOTE") {
+                            sh '''
+                                docker build -t $REGISTRY/$version .
+                            '''
                         }
+                    }
                 }
-                    stage('worker')
-                {
-                        steps {
-                            dir("$WORKER") {
-                                sh  '''
-                                 docker build -t $REGISTRY/$version .
-                                '''
-                            }
+                stage('worker') {
+                    steps {
+                        dir("$WORKER") {
+                            sh  '''
+                                docker build -t $REGISTRY/$version .
+                            '''
                         }
+                    }
                 }
-                }
+            }
         }
         stage('deploy') {
-                steps {
-                    sh  '''
+            steps {
+                sh  '''
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
                     docker push $REGISTRY/result:v1
                     docker push $REGISTRY/vote:v1
                     docker push $REGISTRY/worker:v1
-                    '''
-                }
+                '''
+            }
         }
-    } //fin stage principal
+    }
 }
