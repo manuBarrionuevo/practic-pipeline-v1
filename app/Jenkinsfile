@@ -53,12 +53,12 @@ pipeline {
         }
         stage('deploy') {
             steps {
-                sh  '''
+                sh  """
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
                     docker push $REGISTRY/result:${env.VERSION}
                     docker push $REGISTRY/vote:${env.VERSION}
                     docker push $REGISTRY/worker:${env.VERSION}
-                '''
+                """
             }
         }
     }
