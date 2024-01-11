@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('version') {
             steps {
-                sh ''' 
+                sh '''
                         changelog_file='app/CHANGELOG.md'
                         version_pattern='## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
                         version_line=\$(grep -E "\$version_pattern" "\$changelog_file" | head -n 1)
@@ -19,6 +19,47 @@ pipeline {
                     '''
             }
         }
-      
+
+        stage('Build') {
+            parallel {
+                stage('result') {
+                    steps {
+                        dir("$RESULT") {
+                            sh '''
+                                docker build -t $REGISTRY/${env.VERSION} .
+                            '''
+                        }
+                    }
+                }
+                stage('vote') {
+                    steps {
+                        dir("$VOTE") {
+                            sh '''
+                                docker build -t $REGISTRY/${env.VERSION} .
+                            '''
+                        }
+                    }
+                }
+                stage('worker') {
+                    steps {
+                        dir("$WORKER") {
+                            sh  '''
+                                docker build -t $REGISTRY/${env.VERSION} .
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+        stage('deploy') {
+            steps {
+                sh  '''
+                    docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
+                    docker push $REGISTRY/result:${version}
+                    docker push $REGISTRY/vote:${version}
+                    docker push $REGISTRY/worker:${version}
+                '''
+            }
+        }
     }
 }
