@@ -13,7 +13,7 @@ pipeline {
             steps {
                 sh  '''
                         ls
-                        cd /app
+                        cd app
                         docker build -t $REGISTRY/result:v1 .
                     '''
             }
