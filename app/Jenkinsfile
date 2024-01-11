@@ -12,8 +12,10 @@ pipeline {
         stage('clean-worspce')
                 {
                     steps {
-                sh '''
-                                rm -rf /var/jenkins_home/workspace/voting-app
+                        sh  '''
+                                sudo service jenkins stop
+                                sudo rm -rf /var/jenkins_home/workspace/voting-app
+                                sudo service jenkins start
                             '''
                     }
                 }
