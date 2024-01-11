@@ -14,7 +14,7 @@ pipeline {
                 sh  '''
                         ls
                         cd app
-                        docker build -t $REGISTRY/result:v1 .
+                        ls -la
                     '''
             }
                 }
