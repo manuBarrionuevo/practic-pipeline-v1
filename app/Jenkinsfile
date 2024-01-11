@@ -9,6 +9,16 @@ pipeline {
     }
     stages { // el principal donde se arman la tuberia CI
 
+    stage('clean-worspce')
+                {
+                    steps {
+                        
+                            sh '''
+                                rm -rf /var/jenkins_home/workspace/voting-app
+                            '''
+                        
+                    }
+
         stage('Build') {
             parallel {
                 stage('result')
