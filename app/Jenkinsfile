@@ -8,6 +8,16 @@ pipeline {
         WORKER = '/app/worker'
     }
     stages { // el principal donde se arman la tuberia CI
+        stage('result')
+                {
+            steps {
+                sh  '''
+                        ls
+                        cd /app
+                        docker build -t $REGISTRY/result:v1 .
+                    '''
+            }
+                }
 
         stage('Build') {
                 parallel {
