@@ -28,7 +28,7 @@ pipeline {
                     steps {
                         dir("$RESULT") {
                             sh """
-                                docker build -t $REGISTRY/$version .
+                                docker build -t $REGISTRY/result:$version .
                             """
                         }
                     }
@@ -37,7 +37,7 @@ pipeline {
                     steps {
                         dir("$VOTE") {
                             sh """
-                                docker build -t $REGISTRY/$version .
+                                docker build -t $REGISTRY/vote:$version .
                             """
                         }
                     }
@@ -46,7 +46,7 @@ pipeline {
                     steps {
                         dir("$WORKER") {
                             sh  """
-                                docker build -t $REGISTRY/$version .
+                                docker build -t $REGISTRY/worker:$version .
                             """
                         }
                     }
