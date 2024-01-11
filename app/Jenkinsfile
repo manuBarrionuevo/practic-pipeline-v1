@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        REGISTRY = 'manuelbarrionuevo'
+        REGISTRY = 'mbarrionuevok8s'
         DOCKER_HUB_LOGIN = credentials('dockerHub')
         RESULT = '/app/result'
         VOTE = '/app/vote'
