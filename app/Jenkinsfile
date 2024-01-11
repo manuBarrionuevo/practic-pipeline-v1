@@ -9,16 +9,7 @@ pipeline {
     }
     stages { // el principal donde se arman la tuberia CI
 
-        stage('chmod') {
-            steps {
-                sh '''
-                chmod -R 777 /app
-                apt-get update
-                apt-get install git ca-certificates
-
-                '''
-            }
-        }
+    }
 
             stage('Build') {
                 parallel {
