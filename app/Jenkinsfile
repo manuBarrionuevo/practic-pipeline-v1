@@ -14,28 +14,31 @@ pipeline {
                 stage('result')
                 {
                     steps {
-                        dir("$RESULT")
+                        dir("$RESULT") {
                             sh '''
                                 docker build -t $REGISTRY/result:v1 .
                             '''
+                        }
                     }
                 }
                 stage('vote')
                 {
                         steps {
-                            dir("$VOTE")
-                                sh '''
+                            dir("$VOTE") {
+                            sh '''
                                     docker build -t $REGISTRY/vote:v1 .
                                 '''
+                            }
                         }
                 }
                 stage('worker')
                 {
                     steps {
-                        dir("$WORKER")
+                        dir("$WORKER") {
                             sh  '''
                                     docker build -t $REGISTRY/worker:v1 .
                                 '''
+                        }
                     }
                 }
             }
