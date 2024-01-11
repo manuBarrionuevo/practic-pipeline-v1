@@ -8,7 +8,7 @@ pipeline {
         WORKER = 'app/worker'
     }
     stages {
-        stage('result') {
+        stage('version') {
             steps {
                 sh  '''
                     ls -l
