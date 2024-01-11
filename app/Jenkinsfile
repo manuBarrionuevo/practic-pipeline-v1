@@ -11,8 +11,6 @@ pipeline {
         stage('version') {
             steps {
                 sh  '''
-                    ls -l
-                    #!/bin/bash
                     changelog_file="app/CHANGELOG.md"
                     version_pattern="## \\[[0-9]*\\."
                     version_line=$(grep -E "$version_pattern" "$changelog_file" | head -n 1)
