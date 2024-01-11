@@ -15,7 +15,8 @@ pipeline {
                     def version_pattern = "## \\[[0-9]*\\."
                     def version_line = sh(script: "grep -E \"$version_pattern\" \"$changelog_file\" | head -n 1", returnStdout: true).trim()
                     def version = version_line =~ /\[([0-9]+\.[0-9]+\.[0-9]+)\]/
-                    echo "Versión encontrada en el changelog: ${version[0][1]}"
+                    currentBuild.version = version[0][1]
+                    echo "Versión encontrada en el changelog: ${currentBuild.version}"
                 }
             }
         }
@@ -25,7 +26,7 @@ pipeline {
                     steps {
                         dir("$RESULT") {
                             sh '''
-                                docker build -t $REGISTRY/$version .
+                                docker build -t $REGISTRY/${currentBuild.version} .
                             '''
                         }
                     }
@@ -34,7 +35,7 @@ pipeline {
                     steps {
                         dir("$VOTE") {
                             sh '''
-                                docker build -t $REGISTRY/$version .
+                                docker build -t $REGISTRY/${currentBuild.version} .
                             '''
                         }
                     }
@@ -43,7 +44,7 @@ pipeline {
                     steps {
                         dir("$WORKER") {
                             sh  '''
-                                docker build -t $REGISTRY/$version .
+                                docker build -t $REGISTRY/${currentBuild.version} .
                             '''
                         }
                     }
@@ -54,9 +55,9 @@ pipeline {
             steps {
                 sh  '''
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
-                    docker push $REGISTRY/result:v1
-                    docker push $REGISTRY/vote:v1
-                    docker push $REGISTRY/worker:v1
+                    docker push $REGISTRY/result:${currentBuild.version}
+                    docker push $REGISTRY/vote:${currentBuild.version}
+                    docker push $REGISTRY/worker:${currentBuild.version}
                 '''
             }
         }
