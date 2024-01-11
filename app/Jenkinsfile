@@ -1,1 +1,66 @@
+pipeline {
+    agent any
+    environment {
+        REGISTRY = 'manuelbarrionuevo'
+        DOCKER_HUB_LOGIN = credentials('docker')
+        RESULT = '/app/result'
+        VOTE = '/app/vote'
+        WORKER = '/app/worker'
+    }
+    stages { // el principal donde se arman la tuberia CI
 
+        stage('clean-worspce')
+                {
+                    steps {
+                sh '''
+                                rm -rf /var/jenkins_home/workspace/voting-app
+                            '''
+                    }
+
+            stage('Build') {
+                parallel {
+                    stage('result')
+                {
+                        steps {
+                            dir("$RESULT") {
+                                sh '''
+                                docker build -t $REGISTRY/result:v1 .
+                            '''
+                            }
+                        }
+                }
+                    stage('vote')
+                {
+                        steps {
+                            dir("$VOTE") {
+                                sh '''
+                                  docker build -t $REGISTRY/vote:v1 .
+                                '''
+                            }
+                        }
+                }
+                    stage('worker')
+                {
+                        steps {
+                            dir("$WORKER") {
+                                sh  '''
+                                 docker build -t $REGISTRY/worker:v1 .
+                                '''
+                            }
+                        }
+                }
+                }
+            }
+            stage('deploy') {
+                steps {
+                    sh  '''
+                    docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
+                    docker push $REGISTRY/result:v1
+                    docker push $REGISTRY/vote:v1
+                    docker push $REGISTRY/worker:v1
+                    '''
+                }
+            }
+    } //fin stage principal
+    }
+}
