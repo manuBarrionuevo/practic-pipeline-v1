@@ -3,17 +3,19 @@ pipeline {
     environment {
         REGISTRY = 'manuelbarrionuevo'
         DOCKER_HUB_LOGIN = credentials('docker')
-        CARPETA='app'        
+        RESULT = '/app/result'
+        VOTE = '/app/vote'
+        WORKER = '/app/worker'
     }
     stages { // el principal donde se arman la tuberia CI
-        
+
         stage('Build') {
             parallel {
                 stage('result')
                 {
                     steps {
+                        dir("$RESULT")
                             sh '''
-                                cd $CARPETA/result
                                 docker build -t $REGISTRY/result:v1 .
                             '''
                     }
@@ -21,25 +23,25 @@ pipeline {
                 stage('vote')
                 {
                         steps {
+                            dir("$VOTE")
                                 sh '''
-                                    cd $CARPETA/vote
                                     docker build -t $REGISTRY/vote:v1 .
                                 '''
-                            }
+                        }
                 }
                 stage('worker')
                 {
                     steps {
-                        sh  '''
-                        cd $CARPETA/worker
-                        docker build -t $REGISTRY/worker:v1 .
-                    '''
+                        dir("$WORKER")
+                            sh  '''
+                                    docker build -t $REGISTRY/worker:v1 .
+                                '''
                     }
                 }
             }
         }
-        stage('deploy'){
-            steps{
+        stage('deploy') {
+            steps {
                 sh  '''
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
                     docker push $REGISTRY/result:v1
