@@ -20,17 +20,15 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            parallel {
-                stage('result') {
+        stage('test') {
                     steps {
                         dir("$RESULT") {
                             sh """
-                                echo ${version}
+                                echo "version: ${version}"
                                 docker build -t $REGISTRY/${version} .
                             """
                         }
                     }
-                }
-            }
         }
+    }
+}
