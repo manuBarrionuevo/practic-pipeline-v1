@@ -26,24 +26,7 @@ pipeline {
                     steps {
                         dir("$RESULT") {
                             sh """
-                                docker build -t $REGISTRY/${version} .
-                            """
-                        }
-                    }
-                }
-                stage('vote') {
-                    steps {
-                        dir("$VOTE") {
-                            sh """
-                                docker build -t $REGISTRY/${version} .
-                            """
-                        }
-                    }
-                }
-                stage('worker') {
-                    steps {
-                        dir("$WORKER") {
-                            sh  """
+                                echo ${version}
                                 docker build -t $REGISTRY/${version} .
                             """
                         }
@@ -51,15 +34,3 @@ pipeline {
                 }
             }
         }
-        stage('deploy') {
-            steps {
-                sh  """
-                    docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
-                    docker push $REGISTRY/result:${version}
-                    docker push $REGISTRY/vote:${version}
-                    docker push $REGISTRY/worker:${version}
-                """
-            }
-        }
-    }
-}
