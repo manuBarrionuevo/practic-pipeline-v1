@@ -16,8 +16,7 @@ pipeline {
                     steps {
                         dir("$RESULT") {
                             sh '''
-                                chmod -R 777 .
-                                docker build -t $REGISTRY/result:v1 .
+                                sudo docker build -t $REGISTRY/result:v1 .
                             '''
                         }
                     }
@@ -27,8 +26,7 @@ pipeline {
                         steps {
                             dir("$VOTE") {
                             sh '''
-                                    chmod -R 777 .
-                                    docker build -t $REGISTRY/vote:v1 .
+                                  sudo  docker build -t $REGISTRY/vote:v1 .
                                 '''
                             }
                         }
@@ -38,8 +36,7 @@ pipeline {
                     steps {
                         dir("$WORKER") {
                             sh  '''
-                                    chmod -R 777 .
-                                    docker build -t $REGISTRY/worker:v1 .
+                                 sudo  docker build -t $REGISTRY/worker:v1 .
                                 '''
                         }
                     }
