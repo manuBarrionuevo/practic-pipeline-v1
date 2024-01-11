@@ -10,13 +10,15 @@ pipeline {
     stages {
         stage('verision') {
             steps {
-                        sh """
-                        changelog_file='app/CHANGELOG.md'
-                        version_pattern='## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
-                        version_line=\$(grep -E "\$version_pattern" "\$changelog_file" | head -n 1)
-                        version=\$(echo "\$version_line" | grep -oE "[0-9]*\\.[0-9]*\\.[0-9]*")
-                        echo "Versión encontrada en el changelog: \$version"
-                    """
+                        script{
+                            changelog_file='app/CHANGELOG.md'
+                            version_pattern='## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
+                            version_line=\$(grep -E "\$version_pattern" "\$changelog_file" | head -n 1)
+                            version=\$(echo "\$version_line" | grep -oE "[0-9]*\\.[0-9]*\\.[0-9]*")
+                            echo "Versión encontrada en el changelog: \$version"
+                        }
+                        
+                    
             }
         }
         stage('Build') {
