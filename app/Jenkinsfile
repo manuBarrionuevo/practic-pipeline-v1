@@ -8,25 +8,24 @@ pipeline {
         WORKER = 'app/worker'
     }
     stages {
-        stage('version') {
-            steps {
-                sh """
+        stage('Build') {
+            stage('version') {
+                steps {
+                    sh """
                         changelog_file='app/CHANGELOG.md'
                         version_pattern='## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
                         version_line=\$(grep -E "\$version_pattern" "\$changelog_file" | head -n 1)
                         version=\$(echo "\$version_line" | grep -oE "[0-9]*\\.[0-9]*\\.[0-9]*")
                         echo "Versión encontrada en el changelog: \$version"
                     """
+                }
             }
-        }
-
-        stage('Build') {
             parallel {
                 stage('result') {
                     steps {
                         dir("$RESULT") {
                             sh """
-                                docker build -t $REGISTRY/${version} .
+                                docker build -t $REGISTRY/$version .
                             """
                         }
                     }
@@ -35,7 +34,7 @@ pipeline {
                     steps {
                         dir("$VOTE") {
                             sh """
-                                docker build -t $REGISTRY/${version} .
+                                docker build -t $REGISTRY/$version .
                             """
                         }
                     }
@@ -44,7 +43,7 @@ pipeline {
                     steps {
                         dir("$WORKER") {
                             sh  """
-                                docker build -t $REGISTRY/${version} .
+                                docker build -t $REGISTRY/$version .
                             """
                         }
                     }
@@ -55,9 +54,9 @@ pipeline {
             steps {
                 sh  """
                     docker login --username=$DOCKER_HUB_LOGIN_USR --password=$DOCKER_HUB_LOGIN_PSW
-                    docker push $REGISTRY/result:${version}
-                    docker push $REGISTRY/vote:${version}
-                    docker push $REGISTRY/worker:${version}
+                    docker push $REGISTRY/result:$version
+                    docker push $REGISTRY/vote:$version
+                    docker push $REGISTRY/worker:$version
                 """
             }
         }
