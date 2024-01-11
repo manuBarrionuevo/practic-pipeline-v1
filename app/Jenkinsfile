@@ -13,7 +13,7 @@ pipeline {
                     steps {
                         dir("$RESULT") {
                             sh '''
-                                docker build -t $REGISTRY/result:v1 .
+                                sudo docker build -t $REGISTRY/result:v1 .
                             '''
                         }
                     }
@@ -22,17 +22,29 @@ pipeline {
                     steps {
                         dir("$VOTE") {
                             sh '''
+<<<<<<< HEAD
                                 docker build -t $REGISTRY/vote:v1 .
                             '''
+=======
+                                  sudo  docker build -t $REGISTRY/vote:v1 .
+                                '''
+                            }
+>>>>>>> parent of d69792b (saco sudo)
                         }
                     }
                 }
                 stage('worker') {
                     steps {
                         dir("$WORKER") {
+<<<<<<< HEAD
                             sh '''
                                 docker build -t $REGISTRY/worker:v1 .
                             '''
+=======
+                            sh  '''
+                                 sudo  docker build -t $REGISTRY/worker:v1 .
+                                '''
+>>>>>>> parent of d69792b (saco sudo)
                         }
                     }
                 }
