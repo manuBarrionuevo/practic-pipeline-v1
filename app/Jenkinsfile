@@ -8,10 +8,8 @@ pipeline {
         WORKER = 'app/worker'
     }
     stages {
-        stage('Build') {
-            parallel {
-                    stage('version') {
-                    steps {
+        stage('verision') {
+            steps {
                         sh """
                         changelog_file='app/CHANGELOG.md'
                         version_pattern='## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
@@ -19,8 +17,10 @@ pipeline {
                         version=\$(echo "\$version_line" | grep -oE "[0-9]*\\.[0-9]*\\.[0-9]*")
                         echo "Versión encontrada en el changelog: \$version"
                     """
-                    }
-                    }
+            }
+        }
+        stage('Build') {
+            parallel {
                 stage('result') {
                     steps {
                         dir("$RESULT") {
