@@ -3,9 +3,9 @@ pipeline {
     environment {
         REGISTRY = 'mbarrionuevok8s'
         DOCKER_HUB_LOGIN = credentials('dockerHub')
-        RESULT = '/app/result'
-        VOTE = '/app/vote'
-        WORKER = '/app/worker'
+        RESULT = 'app/result'
+        VOTE = 'app/vote'
+        WORKER = 'app/worker'
     }
     stages { // el principal donde se arman la tuberia CI
         stage('control')
@@ -13,7 +13,7 @@ pipeline {
             steps {
                 sh  '''
                         ls
-                        cd app
+                        cd $RESULT
                         ls -la
                     '''
             }
