@@ -25,13 +25,14 @@ pipeline {
                     } else {
                         error "No se encontró el archivo changelog: ${CHANGELOG_FILE}"
                     }
-                        //login dockerHub    
-                        docker.withRegistry('https://registry.hub.docker.com', 'CREDENCIALES_DOCKER_HUB') {
-                            // Build Docker images
-                            buildDockerImage("$REGISTRY/result", "$version", "$RESULT")
-                            buildDockerImage("$REGISTRY/vote", "$version", "$VOTE")
-                            buildDockerImage("$REGISTRY/worker", "$version", "$WORKER")
-                    }
+
+                        // Docker login
+                        sh "docker login --username=${DOCKER_HUB_LOGIN_USR} --password=${DOCKER_HUB_LOGIN_PSW}"
+                        // Build Docker images
+                        buildDockerImage("$REGISTRY/result", "$version", "$RESULT")
+                        buildDockerImage("$REGISTRY/vote", "$version", "$VOTE")
+                        buildDockerImage("$REGISTRY/worker", "$version", "$WORKER")
+                    
                 }
             }
         }
@@ -39,13 +40,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Login Docker Hub
-                    docker.withRegistry('https://registry.hub.docker.com', 'CREDENCIALES_DOCKER_HUB') {
                         // Push Docker images
                         pushDockerImage("$REGISTRY/result", "$version")
                         pushDockerImage("$REGISTRY/vote", "$version")
                         pushDockerImage("$REGISTRY/worker", "$version")
-                    }
                 }
             }
         }
