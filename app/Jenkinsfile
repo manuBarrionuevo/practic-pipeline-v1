@@ -39,7 +39,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Log Docker Hub
+                    // Login Docker Hub
                     docker.withRegistry('https://registry.hub.docker.com', 'CREDENCIALES_DOCKER_HUB') {
                         // Push Docker images
                         pushDockerImage("$REGISTRY/result", "$version")
