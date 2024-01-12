@@ -20,16 +20,18 @@ pipeline {
                             version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                             echo "Versión encontrada en el changelog: ${version}"
                         } else {
-                            error "No se encontró la versión en el changelog."
+                            error 'No se encontró la versión en el changelog.'
                         }
                     } else {
                         error "No se encontró el archivo changelog: ${CHANGELOG_FILE}"
                     }
 
-                    // Build Docker images
-                    buildDockerImage("$REGISTRY/result", "$version", "$RESULT")
-                    buildDockerImage("$REGISTRY/vote", "$version", "$VOTE")
-                    buildDockerImage("$REGISTRY/worker", "$version", "$WORKER")
+                    docker.withRegistry('https://registry.hub.docker.com', 'CREDENCIALES_DOCKER_HUB') {
+                        // Build Docker images
+                        buildDockerImage("$REGISTRY/result", "$version", "$RESULT")
+                        buildDockerImage("$REGISTRY/vote", "$version", "$VOTE")
+                        buildDockerImage("$REGISTRY/worker", "$version", "$WORKER")
+                    }
                 }
             }
         }
