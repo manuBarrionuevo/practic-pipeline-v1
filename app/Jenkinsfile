@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     // Log Docker Hub
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_HUB_LOGIN) {
+                    docker.withRegistry('https://registry.hub.docker.com', 'CREDENCIALES_DOCKER_HUB') {
                         // Push Docker images
                         pushDockerImage("$REGISTRY/result", "$version")
                         pushDockerImage("$REGISTRY/vote", "$version")
