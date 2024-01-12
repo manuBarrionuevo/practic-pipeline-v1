@@ -25,13 +25,13 @@ pipeline {
                     } else {
                         error "No se encontró el archivo changelog: ${CHANGELOG_FILE}"
                     }
-                        //login dockerHub
+                        //login dockerHub    
                         docker.withRegistry('https://registry.hub.docker.com', 'CREDENCIALES_DOCKER_HUB') {
                             // Build Docker images
                             buildDockerImage("$REGISTRY/result", "$version", "$RESULT")
                             buildDockerImage("$REGISTRY/vote", "$version", "$VOTE")
                             buildDockerImage("$REGISTRY/worker", "$version", "$WORKER")
-                        }
+                    }
                 }
             }
         }
@@ -39,9 +39,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    // Log Docker Hub
+                    docker.withRegistry('https://registry.hub.docker.com', 'CREDENCIALES_DOCKER_HUB') {
                         // Push Docker images
                         pushDockerImage("$REGISTRY/result", "$version")
                         pushDockerImage("$REGISTRY/vote", "$version")
+                        pushDockerImage("$REGISTRY/worker", "$version")
+                    }
                 }
             }
         }
