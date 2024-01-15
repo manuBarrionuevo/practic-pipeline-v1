@@ -43,16 +43,15 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Docker login
-                        withDockerRegistry([credentialsId: 'dockerHub',usernameVariable: 'DOCKER_USER']) {
-                            validateDirectories(['app/result', 'app/vote', 'app/worker'])
+                    // Docker login
+                        withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                            withDockerRegistry([url: "https://${DOCKER_USER}:${DOCKER_PASSWORD}@registry.example.com"]) {
+                                validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
-                            pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
-                            pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
-                            pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
-                        
-                        }
-                    } catch (Exception e) {
+                                pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
+                                pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
+                                pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
+                            } catch (Exception e) {
                         echo "Error en la etapa de Deploy: ${e.message}"
                         currentBuild.result = 'FAILURE'
                         error 'Hubo un error durante la etapa de Deploy.'
