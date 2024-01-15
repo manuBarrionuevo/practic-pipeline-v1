@@ -12,20 +12,21 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                    def version
                 script {
+
+                    def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
                     // chequeo si la version existe en changelog
                     try {
                         if (!fileExists(CHANGELOG_FILE)) {
                             error "No se encontró el archivo ${CHANGELOG_FILE}"
                         }
 
-                            versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()                        
+                        
 
                         if (!versionLine) {
                             error 'No se encontró la versión en el changelog.'
                         }
-                            version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
+                        def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                         echo "Versión encontrada en el changelog: ${version}"
 
                         // Docker login
