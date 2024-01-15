@@ -29,9 +29,9 @@ pipeline {
 
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
-                            buildDockerImage("$REGISTRY/result", "$version", "app/result")
-                            buildDockerImage("$REGISTRY/vote", "$version", "app/vote")
-                            buildDockerImage("$REGISTRY/worker", "$version", "app/worker")
+                            buildDockerImage("$REGISTRY/result", "$version", 'app/result')
+                            buildDockerImage("$REGISTRY/vote", "$version", 'app/vote')
+                            buildDockerImage("$REGISTRY/worker", "$version", 'app/worker')
                         }
                     } catch (Exception e) {
                         echo "Error: ${e.message}"
@@ -41,20 +41,37 @@ pipeline {
                 }
             }
         }
-    }
-}
-    // Function to build Docker image
-    def buildDockerImage(imageName, version, directory) {
-        dir(directory) {
-            sh """
-                docker build -t $imageName:$version .
-            """
+        stage('Deploy') {
+                steps {
+                    script {
+                            try {
+                            withDockerRegistry([credentialsId: 'dockerHub']) {
+                                pushDockerImage("$REGISTRY/result", "$version")
+                                pushDockerImage("$REGISTRY/vote", "$version")
+                                pushDockerImage("$REGISTRY/worker", "$version")
+                            }
+                        }catch (Exception e) {
+                            echo "Error: ${e.message}"
+                            currentBuild.result = 'FAILURE'
+                            error 'Hubo un error durante la etapa de Deploy.'
+                            }
+                    }
+                }
         }
     }
+}
+        // Function to build Docker image
+        def buildDockerImage(imageName, version, directory) {
+            dir(directory) {
+                    sh """
+                        docker build -t $imageName:$version .
+                    """
+            }
+        }
 
-    // Function to push Docker image
-    def pushDockerImage(imageName, version) {
-        sh """
-            docker push $imageName:$version
-        """
-    }
+        // Function to push Docker image
+        def pushDockerImage(imageName, version) {
+            sh """
+                    docker push $imageName:$version
+                """
+        }
