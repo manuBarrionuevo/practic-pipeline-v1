@@ -13,17 +13,16 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // chequeo si la version existe en changelog
                     try {
-                        if (!fileExists(CHANGELOG_FILE)) {
-                            error "No se encontró el archivo ${CHANGELOG_FILE}"
-                        }
+                        validateDirectories([CHANGELOG_FILE, RESULT, VOTE, WORKER])
 
+                        // chequeo si la version existe en changelog
                         def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
 
                         if (!versionLine) {
                             error 'No se encontró la versión en el changelog.'
                         }
+
                         // Definir version
                         def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                         echo "Versión encontrada en el changelog: ${version}"
@@ -32,12 +31,12 @@ pipeline {
 
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
-                            buildDockerImage("$REGISTRY/result", "${version}", 'app/result')
-                            buildDockerImage("$REGISTRY/vote", "${version}", 'app/vote')
-                            buildDockerImage("$REGISTRY/worker", "${version}", 'app/worker')
+                            buildDockerImage("$REGISTRY/result", "${version}", RESULT)
+                            buildDockerImage("$REGISTRY/vote", "${version}", VOTE)
+                            buildDockerImage("$REGISTRY/worker", "${version}", WORKER)
                         }
                     } catch (Exception e) {
-                        echo "Error: ${e.message}"
+                        echo "Error en la etapa de Build: ${e.message}"
                         currentBuild.result = 'FAILURE'
                         error 'Hubo un error durante la etapa de Build.'
                     }
@@ -46,21 +45,24 @@ pipeline {
         }
 
         stage('Deploy') {
-                steps {
-                    script {
-                            try {
-                            withDockerRegistry([credentialsId: 'dockerHub']) {
-                                pushDockerImage("$REGISTRY/result", "$version")
-                                pushDockerImage("$REGISTRY/vote", "$version")
-                                pushDockerImage("$REGISTRY/worker", "$version")
-                            }
-                        }catch (Exception e) {
-                            echo "Error: ${e.message}"
-                            currentBuild.result = 'FAILURE'
-                            error 'Hubo un error durante la etapa de Deploy.'
-                            }
+            steps {
+                script {
+                    try {
+                        // Docker login
+                        withDockerRegistry([credentialsId: 'dockerHub']) {
+                            validateDirectories([RESULT, VOTE, WORKER])
+
+                            pushDockerImage("$REGISTRY/result", "${env.VERSION}", RESULT)
+                            pushDockerImage("$REGISTRY/vote", "${env.VERSION}", VOTE)
+                            pushDockerImage("$REGISTRY/worker", "${env.VERSION}", WORKER)
+                        }
+                    } catch (Exception e) {
+                        echo "Error en la etapa de Deploy: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        error 'Hubo un error durante la etapa de Deploy.'
                     }
                 }
+            }
         }
     }
 }
@@ -69,14 +71,23 @@ pipeline {
 def buildDockerImage(imageName, version, directory) {
     dir(directory) {
         sh """
-                        docker build -t $imageName:$version .
-                    """
+            docker build -t $imageName:$version .
+        """
     }
 }
 
 // función push Docker image
-def pushDockerImage(imageName, version) {
+def pushDockerImage(imageName, version, directory) {
     sh """
-                    docker push $imageName:$version
-                """
+        docker push $imageName:$version
+    """
+}
+
+// función para validar la existencia de directorios
+def validateDirectories(directories) {
+    for (dir in directories) {
+        if (!fileExists(dir)) {
+            error "No se encontró el directorio: ${dir}"
+        }
+    }
 }
