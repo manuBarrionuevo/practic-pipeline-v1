@@ -43,16 +43,12 @@ pipeline {
             steps {
                 script {
                     try {
-                            // Docker login
-                            withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-                                
-                                    validateDirectories(['app/result', 'app/vote', 'app/worker'])
+                            validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
                                     pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
                                     pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
                                     pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
-                                
-                            }
+                            
                         }catch (Exception e){
                                 echo "Error en la etapa de Deploy: ${e.message}"
                                 currentBuild.result = 'FAILURE'
