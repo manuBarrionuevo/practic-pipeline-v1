@@ -28,11 +28,12 @@ pipeline {
                         def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                         echo "Versión encontrada en el changelog: ${version}"
 
+
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
-                            buildDockerImage("$REGISTRY/result", "$version", 'app/result')
-                            buildDockerImage("$REGISTRY/vote", "$version", 'app/vote')
-                            buildDockerImage("$REGISTRY/worker", "$version", 'app/worker')
+                            buildDockerImage("$REGISTRY/result", "${version}", 'app/result')
+                            buildDockerImage("$REGISTRY/vote", "${version}", 'app/vote')
+                            buildDockerImage("$REGISTRY/worker", "${version}", 'app/worker')
                         }
                     } catch (Exception e) {
                         echo "Error: ${e.message}"
