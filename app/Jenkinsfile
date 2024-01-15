@@ -51,7 +51,7 @@ pipeline {
                             pushDockerImage("$REGISTRY/result", "${env.VERSION}", 'app/result')
                             pushDockerImage("$REGISTRY/vote", "${env.VERSION}", 'app/vote')
                             pushDockerImage("$REGISTRY/worker", "${env.VERSION}", 'app/worker')
-                        /
+                        
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Deploy: ${e.message}"
