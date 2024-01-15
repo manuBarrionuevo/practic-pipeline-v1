@@ -50,10 +50,7 @@ pipeline {
                     
                     try {
                         echo "Versión encontrada en el changelog: ${version}"
-                        withDockerRegistry([credentialsId: 'dockerHub']) {
-                            pushDockerImage("$REGISTRY/result", "$version")
-                            pushDockerImage("$REGISTRY/vote", "$version")
-                            pushDockerImage("$REGISTRY/worker", "$version")
+                        
                         }
                     } catch (Exception e) {
                         echo "Error: ${e.message}"
