@@ -45,6 +45,7 @@ pipeline {
                 steps {
                     script {
                             try {
+                            echo "Versión encontrada en el changelog: ${version}"
                             withDockerRegistry([credentialsId: 'dockerHub']) {
                                 pushDockerImage("$REGISTRY/result", "$version")
                                 pushDockerImage("$REGISTRY/vote", "$version")
