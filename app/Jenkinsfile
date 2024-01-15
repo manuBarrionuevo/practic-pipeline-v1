@@ -1,59 +1,60 @@
 pipeline {
     agent any
-        environment {
-            REGISTRY = 'mbarrionuevok8s'
-            DOCKER_HUB_LOGIN = credentials('dockerHub')
-            RESULT = 'app/result'
-            VOTE = 'app/vote'
-            WORKER = 'app/worker'
-            CHANGELOG_FILE = 'app/CHANGELOG.md'
-            VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
-        }
-            stages {
-                stage('Build') {
-                    steps {
-                        script {
-                            // chequeo si la version existe en changelog
-                            try{
-                                if (!fileExists(CHANGELOG_FILE)) {
-                                    error "No se encontró el archivo ${CHANGELOG_FILE}"
-                                }
-
-                                def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
-
-                                if (!versionLine) {
-                                error 'No se encontró la versión en el changelog.'
-                                }
-                                def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
-                                echo "Versión encontrada en el changelog: ${version}"
-
-                                // Docker login
-                                withDockerRegistry([credentialsId: 'dockerHub']) {
-                                    buildDockerImage("$REGISTRY/result", "$version", "app/result")
-                                    buildDockerImage("$REGISTRY/vote", "$version", "app/vote")
-                                    buildDockerImage("$REGISTRY/worker", "$version", "app/worker")
-                                }
-                            } catch{
-                                echo "Error: ${e.message}"
-                                currentBuild.result = 'FAILURE'
-                                error 'Hubo un error durante la etapa de Build.'
-                            }
+    environment {
+        REGISTRY = 'mbarrionuevok8s'
+        DOCKER_HUB_LOGIN = credentials('dockerHub')
+        RESULT = 'app/result'
+        VOTE = 'app/vote'
+        WORKER = 'app/worker'
+        CHANGELOG_FILE = 'app/CHANGELOG.md'
+        VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // chequeo si la version existe en changelog
+                    try {
+                        if (!fileExists(CHANGELOG_FILE)) {
+                            error "No se encontró el archivo ${CHANGELOG_FILE}"
                         }
+
+                        def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
+
+                        if (!versionLine) {
+                            error 'No se encontró la versión en el changelog.'
+                        }
+                        def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
+                        echo "Versión encontrada en el changelog: ${version}"
+
+                        // Docker login
+                        withDockerRegistry([credentialsId: 'dockerHub']) {
+                            buildDockerImage("$REGISTRY/result", "$version", "app/result")
+                            buildDockerImage("$REGISTRY/vote", "$version", "app/vote")
+                            buildDockerImage("$REGISTRY/worker", "$version", "app/worker")
+                        }
+                    } catch (Exception e) {
+                        echo "Error: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        error 'Hubo un error durante la etapa de Build.'
                     }
                 }
             }
+        }
     }
-            // Function to build Docker image
-            def buildDockerImage(imageName, version, directory) {
-            dir(directory) {
-                sh """
+}
+    // Function to build Docker image
+    def buildDockerImage(imageName, version, directory) {
+        dir(directory) {
+            sh """
                 docker build -t $imageName:$version .
-                """
-            }
-            }
-            // Function to push Docker image
-            def pushDockerImage(imageName, version) {
-                sh """
-                    docker push $imageName:$version
-                    """
-            }
+            """
+        }
+    }
+
+    // Function to push Docker image
+    def pushDockerImage(imageName, version) {
+        sh """
+            docker push $imageName:$version
+        """
+    }
