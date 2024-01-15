@@ -1,7 +1,6 @@
 pipeline {
     agent any
-    environment {
-        REGISTRY = 'mbarrionuevok8s'       
+    environment {       
         CHANGELOG_FILE = 'app/CHANGELOG.md'
         VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
     }
@@ -26,10 +25,10 @@ pipeline {
                         env.VERSION = version
 
                         // Docker login
-                        withDockerRegistry([credentialsId: 'dockerHub']) {
-                            buildDockerImage("$REGISTRY/result", "${version}", 'app/result')
-                            buildDockerImage("$REGISTRY/vote", "${version}", 'app/vote')
-                            buildDockerImage("$REGISTRY/worker", "${version}", 'app/worker')
+                        withDockerRegistry([credentialsId: 'dockerHub',usernameVariable: 'DOCKER_USER']) {
+                            buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
+                            buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
+                            buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Build: ${e.message}"
@@ -45,12 +44,12 @@ pipeline {
                 script {
                     try {
                         // Docker login
-                        withDockerRegistry([credentialsId: 'dockerHub']) {
+                        withDockerRegistry([credentialsId: 'dockerHub',usernameVariable: 'DOCKER_USER']) {
                             validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
-                            pushDockerImage("$REGISTRY/result", "${env.VERSION}", 'app/result')
-                            pushDockerImage("$REGISTRY/vote", "${env.VERSION}", 'app/vote')
-                            pushDockerImage("$REGISTRY/worker", "${env.VERSION}", 'app/worker')
+                            pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
+                            pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
+                            pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
                         
                         }
                     } catch (Exception e) {
