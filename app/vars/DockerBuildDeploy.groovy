@@ -24,5 +24,3 @@ def dockerLogin(registryUrl) {
     }
     return false
 }
-
-
