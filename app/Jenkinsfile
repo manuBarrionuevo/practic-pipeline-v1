@@ -28,7 +28,7 @@ pipeline {
                         def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                         echo "Versión encontrada en el changelog: ${version}"
 
-                        env.VERSION = version    
+                        env.VERSION = version
 
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
@@ -46,32 +46,37 @@ pipeline {
         }
 
         stage('Deploy') {
-            steps {
-                script {
-                    
-                    
-                        echo "Versión encontrada en el changelog: $VERSION"
-                        
-                      
-                   
+                steps {
+                    script {
+                            try {
+                            withDockerRegistry([credentialsId: 'dockerHub']) {
+                                pushDockerImage("$REGISTRY/result", "$version")
+                                pushDockerImage("$REGISTRY/vote", "$version")
+                                pushDockerImage("$REGISTRY/worker", "$version")
+                            }
+                        }catch (Exception e) {
+                            echo "Error: ${e.message}"
+                            currentBuild.result = 'FAILURE'
+                            error 'Hubo un error durante la etapa de Deploy.'
+                            }
+                    }
                 }
-            }
         }
     }
 }
 
-        // función build Docker image
-        def buildDockerImage(imageName, version, directory) {
-            dir(directory) {
-                    sh """
+// función build Docker image
+def buildDockerImage(imageName, version, directory) {
+    dir(directory) {
+        sh """
                         docker build -t $imageName:$version .
                     """
-            }
-        }
+    }
+}
 
-        // función push Docker image
-        def pushDockerImage(imageName, version) {
-            sh """
+// función push Docker image
+def pushDockerImage(imageName, version) {
+    sh """
                     docker push $imageName:$version
                 """
-        }
+}
