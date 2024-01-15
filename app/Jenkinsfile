@@ -64,7 +64,7 @@ pipeline {
     }
 }
 
-
+// función build Docker image
 def buildDockerImage(imageName, version, directory) {
     dir(directory) {
         sh """
