@@ -46,7 +46,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // La variable version está disponible aquí
+                    
                     try {
                         echo "Versión encontrada en el changelog: ${version}"
                         withDockerRegistry([credentialsId: 'dockerHub']) {
