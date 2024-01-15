@@ -12,6 +12,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                    def version
                 script {
                     // chequeo si la version existe en changelog
                     try {
@@ -19,7 +20,7 @@ pipeline {
                             error "No se encontró el archivo ${CHANGELOG_FILE}"
                         }
 
-                        def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
+                            versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()                        
 
                         if (!versionLine) {
                             error 'No se encontró la versión en el changelog.'
@@ -52,6 +53,7 @@ pipeline {
                                 pushDockerImage("$REGISTRY/worker", "$version")
                             }
                         }catch (Exception e) {
+                            echo "Versión encontrada en el changelog: ${version}"
                             echo "Error: ${e.message}"
                             currentBuild.result = 'FAILURE'
                             error 'Hubo un error durante la etapa de Deploy.'
