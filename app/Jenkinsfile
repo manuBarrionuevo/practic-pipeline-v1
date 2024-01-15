@@ -46,7 +46,7 @@ pipeline {
                     try {
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
-                            validateDirectories("app/result", "app/vote", "app/worker"])
+                            validateDirectories("app/result", "app/vote", "app/worker")
 
                             pushDockerImage("$REGISTRY/result", "${env.VERSION}", "app/result")
                             pushDockerImage("$REGISTRY/vote", "${env.VERSION}", "app/vote")
