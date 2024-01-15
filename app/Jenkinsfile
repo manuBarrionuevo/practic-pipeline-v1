@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    environment {       
+    environment {
         CHANGELOG_FILE = 'app/CHANGELOG.md'
         VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
     }
@@ -37,13 +37,13 @@ pipeline {
                     }
                 }
             }
-        }
+        } //fin stage build
 
         stage('Deploy') {
             steps {
                 script {
                     try {
-                    // Docker login
+                        // Docker login
                         withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                             withDockerRegistry([url: "https://${DOCKER_USER}:${DOCKER_PASSWORD}@registry.example.com"]) {
                                 validateDirectories(['app/result', 'app/vote', 'app/worker'])
@@ -51,17 +51,18 @@ pipeline {
                                 pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
                                 pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
                                 pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
-                            } catch (Exception e) {
-                        echo "Error en la etapa de Deploy: ${e.message}"
-                        currentBuild.result = 'FAILURE'
-                        error 'Hubo un error durante la etapa de Deploy.'
+                            }catch (Exception e){
+                                echo "Error en la etapa de Deploy: ${e.message}"
+                                currentBuild.result = 'FAILURE'
+                                error 'Hubo un error durante la etapa de Deploy.'
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
+        } //fin stage deploy
+    } //fin stage global
+} //fin pipeline
 // función build Docker image
 def buildDockerImage(imageName, version, directory) {
     dir(directory) {
