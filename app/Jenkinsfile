@@ -1,4 +1,4 @@
-@Library('DockerBuildDeploy')
+@Library('DockerBuildDeploy') _
 
 pipeline {
     agent any
@@ -45,20 +45,18 @@ pipeline {
             steps {
                 script {
                     try {
-                            // Docker login
-                             if (dockerLogin("https://registry.example.com")) {
-                                
-                                    validateDirectories(['app/result', 'app/vote', 'app/worker'])
+                        // Docker login
+                        if (dockerLogin("https://registry.example.com")) {
+                            validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
-                                    pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
-                                    pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
-                                    pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
-                                
-                            }
-                        }catch (Exception e){
-                                echo "Error en la etapa de Deploy: ${e.message}"
-                                currentBuild.result = 'FAILURE'
-                                error 'Hubo un error durante la etapa de Deploy.'
+                            pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
+                            pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
+                            pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
+                        }
+                    } catch (Exception e){
+                        echo "Error en la etapa de Deploy: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        error 'Hubo un error durante la etapa de Deploy.'
                     }
                 }
             }
