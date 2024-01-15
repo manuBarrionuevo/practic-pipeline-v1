@@ -14,7 +14,9 @@ def pushDockerImage(imageName, version, directory) {
     """
 }
 
-def dockerLogin(username, password, registryUrl) {
+// DockerBuildDeploy.groovy
+
+def dockerLogin(registryUrl) {
     withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
         withDockerRegistry([url: registryUrl]) {
             return true
@@ -22,4 +24,5 @@ def dockerLogin(username, password, registryUrl) {
     }
     return false
 }
+
 

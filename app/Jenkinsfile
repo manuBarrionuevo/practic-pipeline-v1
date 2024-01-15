@@ -27,7 +27,7 @@ pipeline {
                         env.VERSION = version
 
                         // Docker login
-                        if (dockerLogin("${env.DOCKER_USER}", "${env.DOCKER_PASSWORD}")) {
+                        if (dockerLogin("https://registry.example.com")) {
                             buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
                             buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
                             buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
@@ -46,7 +46,7 @@ pipeline {
                 script {
                     try {
                             // Docker login
-                             if (dockerLogin("${env.DOCKER_USER}", "${env.DOCKER_PASSWORD}")) {
+                             if (dockerLogin("https://registry.example.com")) {
                                 
                                     validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
