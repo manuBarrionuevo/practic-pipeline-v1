@@ -13,19 +13,18 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-
-                    def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
                     // chequeo si la version existe en changelog
                     try {
                         if (!fileExists(CHANGELOG_FILE)) {
                             error "No se encontró el archivo ${CHANGELOG_FILE}"
                         }
 
-                        
+                        def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
 
                         if (!versionLine) {
                             error 'No se encontró la versión en el changelog.'
                         }
+                        // Definir version
                         def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                         echo "Versión encontrada en el changelog: ${version}"
 
@@ -43,28 +42,30 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy') {
-                steps {
-                    script {
-                            try {
-                            echo "Versión encontrada en el changelog: ${version}"
-                            withDockerRegistry([credentialsId: 'dockerHub']) {
-                                pushDockerImage("$REGISTRY/result", "$version")
-                                pushDockerImage("$REGISTRY/vote", "$version")
-                                pushDockerImage("$REGISTRY/worker", "$version")
-                            }
-                        }catch (Exception e) {
-                            echo "Versión encontrada en el changelog: ${version}"
-                            echo "Error: ${e.message}"
-                            currentBuild.result = 'FAILURE'
-                            error 'Hubo un error durante la etapa de Deploy.'
-                            }
+            steps {
+                script {
+                    // La variable version está disponible aquí
+                    try {
+                        echo "Versión encontrada en el changelog: ${version}"
+                        withDockerRegistry([credentialsId: 'dockerHub']) {
+                            pushDockerImage("$REGISTRY/result", "$version")
+                            pushDockerImage("$REGISTRY/vote", "$version")
+                            pushDockerImage("$REGISTRY/worker", "$version")
+                        }
+                    } catch (Exception e) {
+                        echo "Error: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        error 'Hubo un error durante la etapa de Deploy.'
                     }
                 }
+            }
         }
     }
 }
-        // Function to build Docker image
+
+        // función build Docker image
         def buildDockerImage(imageName, version, directory) {
             dir(directory) {
                     sh """
@@ -73,7 +74,7 @@ pipeline {
             }
         }
 
-        // Function to push Docker image
+        // función push Docker image
         def pushDockerImage(imageName, version) {
             sh """
                     docker push $imageName:$version
