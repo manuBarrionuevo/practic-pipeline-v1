@@ -3,9 +3,6 @@ pipeline {
     environment {
         REGISTRY = 'mbarrionuevok8s'
         DOCKER_HUB_LOGIN = credentials('dockerHub')
-        RESULT = 'app/result'
-        VOTE = 'app/vote'
-        WORKER = 'app/worker'
         CHANGELOG_FILE = 'app/CHANGELOG.md'
         VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
     }
@@ -31,9 +28,9 @@ pipeline {
 
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
-                            buildDockerImage("$REGISTRY/result", "${version}", RESULT)
-                            buildDockerImage("$REGISTRY/vote", "${version}", VOTE)
-                            buildDockerImage("$REGISTRY/worker", "${version}", WORKER)
+                            buildDockerImage("$REGISTRY/result", "${version}", "app/result")
+                            buildDockerImage("$REGISTRY/vote", "${version}", 'app/vote')
+                            buildDockerImage("$REGISTRY/worker", "${version}", 'app/worker')
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Build: ${e.message}"
@@ -52,9 +49,10 @@ pipeline {
                         withDockerRegistry([credentialsId: 'dockerHub']) {
                             validateDirectories([RESULT, VOTE, WORKER])
 
-                            pushDockerImage("$REGISTRY/result", "${env.VERSION}", RESULT)
-                            pushDockerImage("$REGISTRY/vote", "${env.VERSION}", VOTE)
-                            pushDockerImage("$REGISTRY/worker", "${env.VERSION}", WORKER)
+                            pushDockerImage("$REGISTRY/result", "${env.VERSION}", "app/result")
+                            pushDockerImage("$REGISTRY/vote", "${env.VERSION}", 'app/vote')
+                            pushDockerImage("$REGISTRY/worker", "${env.VERSION}", 'app/worker')
+                        
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Deploy: ${e.message}"
