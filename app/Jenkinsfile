@@ -1,8 +1,7 @@
 pipeline {
     agent any
     environment {
-        REGISTRY = 'mbarrionuevok8s'
-        DOCKER_HUB_LOGIN = credentials('dockerHub')
+        REGISTRY = 'mbarrionuevok8s'       
         CHANGELOG_FILE = 'app/CHANGELOG.md'
         VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
     }
@@ -11,7 +10,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        validateDirectories([CHANGELOG_FILE, RESULT, VOTE, WORKER])
+                        validateDirectories([CHANGELOG_FILE, "app/result", "app/vote", "app/worker"])
 
                         // chequeo si la version existe en changelog
                         def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
@@ -29,8 +28,8 @@ pipeline {
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
                             buildDockerImage("$REGISTRY/result", "${version}", "app/result")
-                            buildDockerImage("$REGISTRY/vote", "${version}", 'app/vote')
-                            buildDockerImage("$REGISTRY/worker", "${version}", 'app/worker')
+                            buildDockerImage("$REGISTRY/vote", "${version}", "app/vote")
+                            buildDockerImage("$REGISTRY/worker", "${version}", "app/worker")
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Build: ${e.message}"
@@ -47,12 +46,12 @@ pipeline {
                     try {
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
-                            validateDirectories([RESULT, VOTE, WORKER])
+                            validateDirectories("app/result", "app/vote", "app/worker"])
 
                             pushDockerImage("$REGISTRY/result", "${env.VERSION}", "app/result")
-                            pushDockerImage("$REGISTRY/vote", "${env.VERSION}", 'app/vote')
-                            pushDockerImage("$REGISTRY/worker", "${env.VERSION}", 'app/worker')
-                        
+                            pushDockerImage("$REGISTRY/vote", "${env.VERSION}", "app/vote")
+                            pushDockerImage("$REGISTRY/worker", "${env.VERSION}", "app/worker")
+                        /
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Deploy: ${e.message}"
