@@ -25,7 +25,7 @@ pipeline {
                         env.VERSION = version
 
                         // Docker login
-                        withDockerRegistry([credentialsId: 'dockerHub',usernameVariable: 'DOCKER_USER']) {
+                        withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                             buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
                             buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
                             buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
@@ -45,13 +45,13 @@ pipeline {
                     try {
                             // Docker login
                             withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-                                withDockerRegistry([url: "https://${DOCKER_USER}:${DOCKER_PASSWORD}@registry.example.com"]) {
+                                
                                     validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
                                     pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
                                     pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
                                     pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
-                                }
+                                
                             }
                         }catch (Exception e){
                                 echo "Error en la etapa de Deploy: ${e.message}"
