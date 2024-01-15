@@ -1,3 +1,5 @@
+@Library('DockerBuildDeploy')
+
 pipeline {
     agent any
     environment {
@@ -25,7 +27,7 @@ pipeline {
                         env.VERSION = version
 
                         // Docker login
-                        withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        if (dockerLogin("${env.DOCKER_USER}", "${env.DOCKER_PASSWORD}")) {
                             buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
                             buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
                             buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
@@ -44,7 +46,7 @@ pipeline {
                 script {
                     try {
                             // Docker login
-                            withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                             if (dockerLogin("${env.DOCKER_USER}", "${env.DOCKER_PASSWORD}")) {
                                 
                                     validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
@@ -66,28 +68,3 @@ pipeline {
     } //fin stage global
     
 } //fin pipeline
-
-// función build Docker image
-def buildDockerImage(imageName, version, directory) {
-    dir(directory) {
-        sh """
-            docker build -t $imageName:$version .
-        """
-    }
-}
-
-// función push Docker image
-def pushDockerImage(imageName, version, directory) {
-    sh """
-        docker push $imageName:$version
-    """
-}
-
-// función para validar la existencia de directorios
-def validateDirectories(directories) {
-    for (dir in directories) {
-        if (!fileExists(dir)) {
-            error "No se encontró el directorio: ${dir}"
-        }
-    }
-}
