@@ -28,6 +28,7 @@ pipeline {
                         def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                         echo "Versión encontrada en el changelog: ${version}"
 
+                        env.VERSION = version    
 
                         // Docker login
                         withDockerRegistry([credentialsId: 'dockerHub']) {
@@ -49,7 +50,7 @@ pipeline {
                 script {
                     
                     
-                        echo "Versión encontrada en el changelog: ${version}"
+                        echo "Versión encontrada en el changelog: $VERSION"
                         
                       
                    
