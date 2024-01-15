@@ -52,11 +52,7 @@ pipeline {
                         echo "Versión encontrada en el changelog: ${version}"
                         
                         }
-                    } catch (Exception e) {
-                        echo "Error: ${e.message}"
-                        currentBuild.result = 'FAILURE'
-                        error 'Hubo un error durante la etapa de Deploy.'
-                    }
+                   
                 }
             }
         }
