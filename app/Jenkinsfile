@@ -80,6 +80,9 @@ pipeline {
                 def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
                 def branchName = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
 
+                echo "Commit Author: ${commitAuthor}"
+                echo "Branch Name: ${branchName}"
+
                 // mensaje de éxito con información adicional
                 def successMessage = 'Pipeline succeeded\n' +
                                 "Project: ${projectName}\n" +
