@@ -74,15 +74,15 @@ pipeline {
         }
         success {
             script {
-                // Obtener información de la construcción y el proyecto
+                // información de la construcción y el proyecto
                 def buildUrl = env.BUILD_URL
                 def projectName = env.JOB_NAME
 
-                // Construir el mensaje de éxito con información adicional
+                // mensaje de éxito con información adicional
                 def successMessage = 'Pipeline succeeded\n' +
                                  "Project: ${projectName}\n" +
                                  "Build URL: ${buildUrl}\n" +
-                                 "Version: ${env.VERSION}"  // Agrega la versión si es relevante
+                                 "Version: ${env.VERSION}"  
 
                 // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
                 slackSend(color: 'good', message: successMessage)
