@@ -75,6 +75,9 @@ pipeline {
                 // Obtener información del autor del último commit
                 def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
 
+                 // Obtener información del branch
+                BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+
                 
 
                 // Construir el mensaje de éxito con información adicional
@@ -83,7 +86,7 @@ pipeline {
                                 "Build URL: ${buildUrl}\n" +
                                 "Version: ${env.VERSION}\n" +
                                 "Commit Author: ${commitAuthor}\n" +
-                                "Branch Name: ${env.BRANCH_NAME}"
+                                "Branch Name: ${BRANCH_NAME}"
 
                 // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
                 slackSend(color: 'good', message: successMessage)
