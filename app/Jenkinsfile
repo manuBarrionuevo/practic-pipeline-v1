@@ -8,6 +8,7 @@ pipeline {
     environment {
         CHANGELOG_FILE = 'app/CHANGELOG.md'
         VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
+        BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
     }
     stages {
         stage('Build') {
@@ -75,16 +76,16 @@ pipeline {
                 // Obtener información del autor del último commit
                 def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
 
-                // Obtener el nombre de la rama actual
-                def branchName = sh(script: 'git rev-parse --symbolic-full-name --abbrev-ref HEAD', returnStdout: true).trim()
+                // Obtener el nombre de la rama desde la variable de entorno
+                def branchName = env.BRANCH_NAME
 
                 // Construir el mensaje de éxito con información adicional
                 def successMessage = 'Pipeline succeeded\n' +
-                                 "Project: ${projectName}\n" +
-                                 "Build URL: ${buildUrl}\n" +
-                                 "Version: ${env.VERSION}\n" +
-                                 "Commit Author: ${commitAuthor}\n" +
-                                 "Branch Name: ${branchName}"
+                             "Project: ${projectName}\n" +
+                             "Build URL: ${buildUrl}\n" +
+                             "Version: ${env.VERSION}\n" +
+                             "Commit Author: ${commitAuthor}\n" +
+                             "Branch Name: ${branchName}"
 
                 // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
                 slackSend(color: 'good', message: successMessage)
