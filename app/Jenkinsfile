@@ -1,6 +1,39 @@
 @Library('dockerBuildDeploy') _
 import dockerBuildDeploy
 
+def dockerBuildDeploy = [:]
+
+dockerBuildDeploy.buildDockerImage = { imageName, version, directory ->
+    dir(directory) {
+        sh """
+            docker build -t $imageName:$version .
+        """
+    }
+}
+
+dockerBuildDeploy.pushDockerImage = { imageName, version, directory ->
+    sh """
+        docker push $imageName:$version
+    """
+}
+
+dockerBuildDeploy.dockerLogin = { registryUrl ->
+    withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+        withDockerRegistry([url: registryUrl]) {
+            return true
+        }
+    }
+    return false
+}
+
+dockerBuildDeploy.validateDirectories = { directoryList ->
+    directoryList.each { directory ->
+        if (!fileExists(directory)) {
+            error "El directorio '${directory}' no existe."
+        }
+    }
+}
+
 pipeline {
     agent any
     environment {
@@ -21,7 +54,7 @@ pipeline {
                             error 'No se encontró la versión en el changelog.'
                         }
 
-                        // Definir version
+                        // Definir versión
                         def version = sh(script: "echo \"${versionLine}\" | grep -oE \"[0-9]*\\.[0-9]*\\.[0-9]*\"", returnStdout: true).trim()
                         echo "Versión encontrada en el changelog: ${version}"
 
@@ -40,7 +73,7 @@ pipeline {
                     }
                 }
             }
-        } //fin stage build
+        } // fin stage build
 
         stage('Deploy') {
             steps {
@@ -61,6 +94,8 @@ pipeline {
                     }
                 }
             }
-        } //fin stage deploy
-    } //fin stage global
-} //fin pipeline
+        } // fin stage deploy
+    } // fin stage global
+} // fin pipeline
+
+return dockerBuildDeploy
