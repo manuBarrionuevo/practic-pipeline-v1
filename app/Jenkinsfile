@@ -30,7 +30,7 @@ pipeline {
                         env.VERSION = version
 
                         // Docker login
-                        if (dockerBuildDeployInstance.dockerLogin("https://registry.example.com")) {
+                        if (dockerBuildDeployInstance.dockerLogin('https://registry.example.com')) {
                             dockerBuildDeployInstance.buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
                             dockerBuildDeployInstance.buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
                             dockerBuildDeployInstance.buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
@@ -49,14 +49,14 @@ pipeline {
                 script {
                     try {
                         // Docker login
-                        if (dockerBuildDeployInstance.dockerLogin("https://registry.example.com")) {
+                        if (dockerBuildDeployInstance.dockerLogin('https://registry.example.com')) {
                             dockerBuildDeployInstance.validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
                             dockerBuildDeployInstance.pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
                             dockerBuildDeployInstance.pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
                             dockerBuildDeployInstance.pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
                         }
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         echo "Error en la etapa de Deploy: ${e.message}"
                         currentBuild.result = 'FAILURE'
                         error 'Hubo un error durante la etapa de Deploy.'
@@ -65,4 +65,18 @@ pipeline {
             }
         } // fin stage deploy
     } // fin stage global
+    post {
+        failure {
+            script {
+                // Notificar a Slack en caso de errores en cualquier etapa utilizando la configuración global
+                slackSend(color: 'danger', message: "Pipeline failed: ${currentBuild.currentResult}")
+            }
+        }
+        success {
+            script {
+                // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
+                slackSend(color: 'good', message: 'Pipeline succeeded')
+            }
+        }
+    }
 } // fin pipeline
