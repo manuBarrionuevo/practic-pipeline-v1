@@ -64,4 +64,3 @@ pipeline {
         } //fin stage deploy
     } //fin stage global
 } //fin pipeline
-
