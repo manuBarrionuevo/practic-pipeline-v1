@@ -1,7 +1,7 @@
 @Library('dockerBuildDeploy') _
 import dockerBuildDeploy
 
-def dockerBuildDeploy = dockerBuildDeploy()  // Crear una instancia del objeto dockerBuildDeploy
+def dockerBuildDeployInstance = dockerBuildDeploy()
 
 pipeline {
     agent any
@@ -14,9 +14,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        dockerBuildDeploy.validateDirectories([CHANGELOG_FILE, 'app/result', 'app/vote', 'app/worker'])
+                        dockerBuildDeployInstance.validateDirectories([CHANGELOG_FILE, 'app/result', 'app/vote', 'app/worker'])
 
-                        // chequeo si la version existe en changelog
+                        // Chequeo si la versión existe en changelog
                         def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
 
                         if (!versionLine) {
@@ -30,10 +30,10 @@ pipeline {
                         env.VERSION = version
 
                         // Docker login
-                        if (dockerBuildDeploy.dockerLogin("https://registry.example.com")) {
-                            dockerBuildDeploy.buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
-                            dockerBuildDeploy.buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
-                            dockerBuildDeploy.buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
+                        if (dockerBuildDeployInstance.dockerLogin("https://registry.example.com")) {
+                            dockerBuildDeployInstance.buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
+                            dockerBuildDeployInstance.buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
+                            dockerBuildDeployInstance.buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Build: ${e.message}"
@@ -49,12 +49,12 @@ pipeline {
                 script {
                     try {
                         // Docker login
-                        if (dockerBuildDeploy.dockerLogin("https://registry.example.com")) {
-                            dockerBuildDeploy.validateDirectories(['app/result', 'app/vote', 'app/worker'])
+                        if (dockerBuildDeployInstance.dockerLogin("https://registry.example.com")) {
+                            dockerBuildDeployInstance.validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
-                            dockerBuildDeploy.pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
-                            dockerBuildDeploy.pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
-                            dockerBuildDeploy.pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
+                            dockerBuildDeployInstance.pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
+                            dockerBuildDeployInstance.pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
+                            dockerBuildDeployInstance.pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
                         }
                     } catch (Exception e){
                         echo "Error en la etapa de Deploy: ${e.message}"
