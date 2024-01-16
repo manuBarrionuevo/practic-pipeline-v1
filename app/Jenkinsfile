@@ -1,4 +1,4 @@
-@Library('DockerBuildDeploy') _
+@Library('vars/DockerBuildDeploy') _
 
 pipeline {
     agent any
