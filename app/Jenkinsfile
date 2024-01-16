@@ -1,4 +1,5 @@
 @Library('dockerBuildDeploy') _
+import dockerBuildDeploy
 
 pipeline {
     agent any
