@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        validateDirectories([CHANGELOG_FILE, 'app/result', 'app/vote', 'app/worker'])
+                        dockerBuildDeploy.validateDirectories([CHANGELOG_FILE, 'app/result', 'app/vote', 'app/worker'])
 
                         // chequeo si la version existe en changelog
                         def versionLine = sh(script: "grep -E \"${VERSION_PATTERN}\" \"${CHANGELOG_FILE}\" | head -n 1", returnStdout: true).trim()
@@ -27,10 +27,10 @@ pipeline {
                         env.VERSION = version
 
                         // Docker login
-                        if (dockerLogin("https://registry.example.com")) {
-                            buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
-                            buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
-                            buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
+                        if (dockerBuildDeploy.dockerLogin("https://registry.example.com")) {
+                            dockerBuildDeploy.buildDockerImage("${DOCKER_USER}/result", "${version}", 'app/result')
+                            dockerBuildDeploy.buildDockerImage("${DOCKER_USER}/vote", "${version}", 'app/vote')
+                            dockerBuildDeploy.buildDockerImage("${DOCKER_USER}/worker", "${version}", 'app/worker')
                         }
                     } catch (Exception e) {
                         echo "Error en la etapa de Build: ${e.message}"
@@ -46,12 +46,12 @@ pipeline {
                 script {
                     try {
                         // Docker login
-                        if (dockerLogin("https://registry.example.com")) {
-                            validateDirectories(['app/result', 'app/vote', 'app/worker'])
+                        if (dockerBuildDeploy.dockerLogin("https://registry.example.com")) {
+                            dockerBuildDeploy.validateDirectories(['app/result', 'app/vote', 'app/worker'])
 
-                            pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
-                            pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
-                            pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
+                            dockerBuildDeploy.pushDockerImage("${DOCKER_USER}/result", "${env.VERSION}", 'app/result')
+                            dockerBuildDeploy.pushDockerImage("${DOCKER_USER}/vote", "${env.VERSION}", 'app/vote')
+                            dockerBuildDeploy.pushDockerImage("${DOCKER_USER}/worker", "${env.VERSION}", 'app/worker')
                         }
                     } catch (Exception e){
                         echo "Error en la etapa de Deploy: ${e.message}"
@@ -60,9 +60,6 @@ pipeline {
                     }
                 }
             }
-
         } //fin stage deploy
-
     } //fin stage global
-    
 } //fin pipeline
