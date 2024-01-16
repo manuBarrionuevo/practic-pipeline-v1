@@ -66,30 +66,25 @@ pipeline {
         } // fin stage deploy
     } // fin stage global
     post {
-        failure {
-            script {
-                // Notificar a Slack en caso de errores en cualquier etapa utilizando la configuración global
-                slackSend(color: 'danger', message: "Pipeline failed: ${currentBuild.currentResult}")
-            }
-        }
         success {
             script {
-                // información de la construcción y el proyecto
+                // Obtener información de la construcción y el proyecto
                 def buildUrl = env.BUILD_URL
                 def projectName = env.JOB_NAME
+
+                // Obtener información del autor del último commit
                 def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
+
+                // Obtener el nombre de la rama actual
                 def branchName = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
 
-                echo "Commit Author: ${commitAuthor}"
-                echo "Branch Name: ${branchName}"
-
-                // mensaje de éxito con información adicional
+                // Construir el mensaje de éxito con información adicional
                 def successMessage = 'Pipeline succeeded\n' +
-                                "Project: ${projectName}\n" +
-                                "Build URL: ${buildUrl}\n" +
-                                "Version: ${env.VERSION}"
-                                "Commit Author: ${commitAuthor}\n" +
-                                "Branch: ${branchName}"
+                                 "Project: ${projectName}\n" +
+                                 "Build URL: ${buildUrl}\n" +
+                                 "Version: ${env.VERSION}\n" +
+                                 "Commit Author: ${commitAuthor}\n" +
+                                 "Branch Name: ${branchName}"
 
                 // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
                 slackSend(color: 'good', message: successMessage)
