@@ -1,4 +1,4 @@
-
+@Library('dockerBuildDeploy') _
 
 pipeline {
     agent any
@@ -64,27 +64,3 @@ pipeline {
     } //fin stage global
 } //fin pipeline
 
-def dockerBuildDeploy = [:]
-
-dockerBuildDeploy.buildDockerImage = { imageName, version, directory ->
-    dir(directory) {
-        sh """
-            docker build -t $imageName:$version .
-        """
-    }
-}
-
-dockerBuildDeploy.pushDockerImage = { imageName, version, directory ->
-    sh """
-        docker push $imageName:$version
-    """
-}
-
-dockerBuildDeploy.dockerLogin = { registryUrl ->
-    withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-        withDockerRegistry([url: registryUrl]) {
-            return true
-        }
-    }
-    return false
-}
