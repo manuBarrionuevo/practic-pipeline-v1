@@ -76,7 +76,7 @@ pipeline {
                 def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
 
                 // Obtener el nombre de la rama actual
-                def branchName = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+                def branchName = sh(script: 'git rev-parse --symbolic-full-name --abbrev-ref HEAD', returnStdout: true).trim()
 
                 // Construir el mensaje de éxito con información adicional
                 def successMessage = 'Pipeline succeeded\n' +
