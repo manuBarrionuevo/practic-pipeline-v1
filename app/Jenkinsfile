@@ -77,12 +77,16 @@ pipeline {
                 // información de la construcción y el proyecto
                 def buildUrl = env.BUILD_URL
                 def projectName = env.JOB_NAME
+                def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
+                def branchName = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
 
                 // mensaje de éxito con información adicional
                 def successMessage = 'Pipeline succeeded\n' +
-                                 "Project: ${projectName}\n" +
-                                 "Build URL: ${buildUrl}\n" +
-                                 "Version: ${env.VERSION}"  
+                                "Project: ${projectName}\n" +
+                                "Build URL: ${buildUrl}\n" +
+                                "Version: ${env.VERSION}"
+                                "Commit Author: ${commitAuthor}\n" +
+                                "Branch: ${branchName}"
 
                 // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
                 slackSend(color: 'good', message: successMessage)
