@@ -8,7 +8,7 @@ pipeline {
     environment {
         CHANGELOG_FILE = 'app/CHANGELOG.md'
         VERSION_PATTERN = '## \\[[0-9]*\\.[0-9]*\\.[0-9]*\\]'
-        BRANCH_NAME = "${GIT_BRANCH.split("/")[1]}"
+        BRANCH_NAME = "${GIT_BRANCH.split('/')[1]}"
     }
     stages {
         stage('Build') {
@@ -75,7 +75,7 @@ pipeline {
 
                 // Obtener información del autor del último commit
                 def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
-                
+
                 // Construir el mensaje de éxito con información adicional
                 def successMessage = 'Pipeline succeeded\n' +
                                 "Project: ${projectName}\n" +
@@ -83,10 +83,30 @@ pipeline {
                                 "Version: ${env.VERSION}\n" +
                                 "Commit Author: ${commitAuthor}\n" +
                                 "Branch Name: ${BRANCH_NAME}"
-                                "Branch Name: ${env.BRANCH_NAME}"
 
                 // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
                 slackSend(color: 'good', message: successMessage)
+            }
+        }
+        failure {
+            script {
+                // Obtener información de la construcción y el proyecto en caso de fallo
+                def buildUrl = env.BUILD_URL
+                def projectName = env.JOB_NAME
+
+                // Obtener información del autor del último commit en caso de fallo
+                def commitAuthor = sh(script: 'git log --format=%an -n 1', returnStdout: true).trim()
+
+                // Construir el mensaje de fallo con información adicional
+                def failureMessage = 'Pipeline failed\n' +
+                                "Project: ${projectName}\n" +
+                                "Build URL: ${buildUrl}\n" +
+                                "Version: ${env.VERSION}\n" +
+                                "Commit Author: ${commitAuthor}\n" +
+                                "Branch Name: ${BRANCH_NAME}"
+
+                // Notificar a Slack en caso de fallo en cualquier etapa utilizando la configuración global
+                slackSend(color: 'danger', message: failureMessage)
             }
         }
     }
