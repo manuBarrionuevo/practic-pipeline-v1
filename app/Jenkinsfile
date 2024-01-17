@@ -77,7 +77,9 @@ pipeline {
 
                  // Obtener información del branch
                 BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-
+                
+                // Obtener el nombre de la rama actual
+                def branchName = env.BRANCH_NAME
                 
 
                 // Construir el mensaje de éxito con información adicional
@@ -87,6 +89,7 @@ pipeline {
                                 "Version: ${env.VERSION}\n" +
                                 "Commit Author: ${commitAuthor}\n" +
                                 "Branch Name: ${BRANCH_NAME}"
+                                "Branch Name: ${branchName}"
 
                 // Notificar a Slack en caso de éxito en todas las etapas utilizando la configuración global
                 slackSend(color: 'good', message: successMessage)
